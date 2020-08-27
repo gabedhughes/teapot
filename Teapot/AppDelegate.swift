@@ -12,23 +12,39 @@ import SwiftUI
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    var window: NSWindow!
-
+    var popover: NSPopover!
+    var statusBarItem: NSStatusItem!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
-        // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
-        let contentView = ContentView().environment(\.managedObjectContext, persistentContainer.viewContext)
-
-        // Create the window and set the content view. 
-        window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-            backing: .buffered, defer: false)
-        window.center()
-        window.setFrameAutosaveName("Main Window")
-        window.contentView = NSHostingView(rootView: contentView)
-        window.makeKeyAndOrderFront(nil)
+        // Create the SwiftUI view that provides the window contents.
+        let contentView = ContentView()
+        
+        // Create the popover
+        let popover = NSPopover()
+        popover.contentSize = NSSize(width: 400, height: 500)
+        popover.behavior = .transient
+        popover.contentViewController = NSHostingController(rootView: contentView)
+        self.popover = popover
+        
+        // Create the status item
+        self.statusBarItem = NSStatusBar.system.statusItem(withLength: CGFloat(NSStatusItem.variableLength))
+        
+        if let button = self.statusBarItem.button {
+            button.image = NSImage(named: "Icon")
+            button.action = #selector(togglePopover(_:))
+        }
+    }
+    
+    // Create the status item
+    @objc func togglePopover(_ sender: AnyObject?) {
+        if let button = self.statusBarItem.button {
+            if self.popover.isShown {
+                self.popover.performClose(sender)
+            } else {
+                self.popover.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
+                self.popover.contentViewController?.view.window?.becomeKey()
+            }
+        }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
