@@ -10,8 +10,18 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, World!")
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        VStack {
+            Text("Teapot")
+                .font(.title)
+                .fontWeight(.bold)
+                .padding(.bottom, 20.0)
+            
+            Button(action: {
+                NSApplication.shared.terminate(self)
+            }) {
+                Text("Quit Teapot")
+            }
+        }.frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
